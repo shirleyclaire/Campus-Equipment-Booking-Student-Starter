@@ -26,4 +26,22 @@ void bookingOneMoreThanAvailableIsRejected() {
     // 1. Verify inventory is NOT changed
     assertEquals(initialAvailable, service.getEquipment("PROJECTOR01").getAvailableQuantity());
 }
+@Test
+void doubleCancellationDoesNotRestoreInventoryTwice() {
+    // 1. Create a booking (e.g., 2 laptops)
+    Booking b = service.create("STU1001", "LAPTOP01", 2);
+    int initialAvailableAfterBooking = service.getEquipment("LAPTOP01").getAvailableQuantity(); // 8
+
+    // 2. First cancellation: should succeed, update status, and restore inventory by 2
+    Booking cancelledBooking = service.cancel(b.getId());
+    assertEquals("CANCELLED", cancelledBooking.getStatus());
+    assertEquals(initialAvailableAfterBooking + 2, service.getEquipment("LAPTOP01").getAvailableQuantity());
+
+    // 3. Second cancellation attempt: must throw IllegalStateException
+    assertThrows(IllegalStateException.class, () -> service.cancel(b.getId()));
+
+    // 4. Verify status remains CANCELLED and inventory is unchanged
+    assertEquals("CANCELLED", service.getBooking(b.getId()).getStatus());
+    assertEquals(initialAvailableAfterBooking + 2, service.getEquipment("LAPTOP01").getAvailableQuantity());
+}
 }
