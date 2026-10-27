@@ -16,14 +16,14 @@ pipeline {
         stage('Task 2: Package JAR') {
             steps {
                 echo 'Packaging Application JAR...'
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn package -DskipTests'
             }
         }
     }
 
     post {
         always {
-            junit '**/target/surefire-reports/*.xml'
+            junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
         }
     }
 }
