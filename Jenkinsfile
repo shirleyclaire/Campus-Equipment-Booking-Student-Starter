@@ -19,6 +19,13 @@ pipeline {
                 sh 'mvn package -DskipTests'
             }
         }
+
+        stage('Task 5: Docker Build') {
+            steps {
+                echo 'Building Docker Image: campus-equipment-booking:set-f'
+                sh 'docker build -t campus-equipment-booking:set-f .'
+            }
+        }
     }
 
     post {
